@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bearer Webview</title>
+    <link href="${styleVSCodeUri}" rel="stylesheet" />
+  </head>
+  <body>
+    <div>
+      <label for="targetPath">Select target:</label>
+      <select id="targetPath" style="margin-bottom: 5px">
+        <option value="currentFile">Current File</option>
+        <option value="currentFolder">Current Folder</option>
+        <option value="projectFolder">Project Folder</option>
+      </select>
+      <button id="scan">Scan</button>
+    </div>
+    <div>
+      <ul id="data"></ul>
+    </div>
+    <script>
+      (function () {
+        const vscode = acquireVsCodeApi();
+        const scan = document.getElementById("scan");
+        scan.addEventListener("click", () => {
+          const selectedTarget = document.getElementById("targetPath").value;
+          vscode.postMessage({ command: "scan", targetPath: selectedTarget });
+        });
+      })();
+      (function () {
+        const ul = document.getElementById("data");
+        vscode.onDidReceiveMessage((message) => {
+          if (message.command === "data") {
+            ul.innerHTML = message.data.map(
+              (e) => `
+            <li>${e?.name}</li>
+            `
+            );
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
